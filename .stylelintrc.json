@@ -1,0 +1,15 @@
+{
+  "extends": ["stylelint-config-standard-scss"],
+  "plugins": ["stylelint-declaration-strict-value"],
+  "rules": {
+    "color-no-hex": true,
+    "scale-unlimited/declaration-strict-value": [
+      ["/color$/", "border-radius", "font-family"],
+      {
+        "ignoreValues": ["transparent", "inherit", "currentColor", "initial"],
+        "message": "Direct values are forbidden. Consume Bootstrap variables or theme custom properties."
+      }
+    ]
+  },
+  "ignoreFiles": ["src/styles/theme.scss"]
+}
