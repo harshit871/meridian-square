@@ -1,4 +1,4 @@
-import React from 'react';
+import { ChangeEvent } from 'react';
 import { PropertyFilters } from '../types/property';
 
 export interface FilterPanelProps {
@@ -9,26 +9,20 @@ export interface FilterPanelProps {
   resultCount: number;
 }
 
-export const FilterPanel: React.FC<FilterPanelProps> = ({
+export const FilterPanel = ({
   filters,
   locations,
   onFilterChange,
   onReset,
   resultCount
-}) => {
-  const handleLocationChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    onFilterChange({
-      ...filters,
-      location: e.target.value
-    });
+}: FilterPanelProps) => {
+  const handleLocationChange = (e: ChangeEvent<HTMLSelectElement>) => {
+    onFilterChange({ ...filters, location: e.target.value });
   };
 
-  const handleYieldChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleYieldChange = (e: ChangeEvent<HTMLInputElement>) => {
     const val = parseFloat(e.target.value);
-    onFilterChange({
-      ...filters,
-      minYield: isNaN(val) ? 0 : Math.max(0, val)
-    });
+    onFilterChange({ ...filters, minYield: isNaN(val) ? 0 : Math.max(0, val) });
   };
 
   const isFiltered = filters.location !== 'ALL' || filters.minYield > 0;

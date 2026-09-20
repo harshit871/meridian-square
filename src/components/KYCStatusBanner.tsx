@@ -1,11 +1,10 @@
-import React from 'react';
 import { KYCStatus } from '../types/kyc';
 
 export interface KYCStatusBannerProps {
   status: KYCStatus;
 }
 
-export const KYCStatusBanner: React.FC<KYCStatusBannerProps> = ({ status }) => {
+export const KYCStatusBanner = ({ status }: KYCStatusBannerProps) => {
   if (status === 'approved') {
     return null;
   }

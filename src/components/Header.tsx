@@ -1,4 +1,3 @@
-import React from 'react';
 import { KYCStatus } from '../types/kyc';
 
 export type ApiSimulationMode = 'normal' | 'slow' | 'error';
@@ -10,17 +9,19 @@ export interface HeaderProps {
   onApiModeChange: (mode: ApiSimulationMode) => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({
+export const Header = ({
   kycStatus,
   onKycStatusChange,
   apiMode,
   onApiModeChange
-}) => {
+}: HeaderProps) => {
   return (
     <header className="border-bottom bg-white sticky-top shadow-sm mb-4">
       <div className="container py-2 py-sm-3">
         <div className="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2 gap-sm-3">
           <div className="d-flex align-items-center gap-2">
+            {/* The 36×36 logo mark must stay as inline style: it's a fixed pixel
+                dimension for a non-text icon container, not a design token. */}
             <div
               className="bg-primary text-white rounded p-2 d-flex align-items-center justify-content-center"
               style={{ width: 36, height: 36 }}
@@ -32,7 +33,7 @@ export const Header: React.FC<HeaderProps> = ({
               <span className="small text-muted d-none d-md-inline">Real-World Asset Tokenization</span>
             </div>
             <span className="badge text-bg-primary-subtle text-primary border border-primary-subtle ms-2 d-none d-lg-inline">
-              UAE & US Regulated
+              UAE &amp; US Regulated
             </span>
           </div>
 

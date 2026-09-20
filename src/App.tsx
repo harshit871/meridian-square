@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Header, ApiSimulationMode } from './components/Header';
 import { KYCStatusBanner } from './components/KYCStatusBanner';
@@ -15,7 +15,7 @@ const queryClient = new QueryClient({
   },
 });
 
-export const App: React.FC = () => {
+export const App = () => {
   const [kycStatus, setKycStatus] = useState<KYCStatus>('pending');
   const [apiMode, setApiMode] = useState<ApiSimulationMode>('normal');
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);
@@ -50,7 +50,8 @@ export const App: React.FC = () => {
             role="dialog"
             aria-modal="true"
             aria-labelledby="property-modal-title"
-            style={{ backgroundColor: 'rgba(11, 25, 44, 0.6)' }}
+            // --cs-modal-backdrop is defined in theme.scss so no hex leaks into components
+            style={{ backgroundColor: 'var(--cs-modal-backdrop)' }}
           >
             <div className="modal-dialog modal-dialog-centered">
               <div className="modal-content shadow border-0">
@@ -122,7 +123,7 @@ export const App: React.FC = () => {
         <footer className="bg-white border-top py-3 mt-auto text-center text-muted small">
           <div className="container">
             <p className="mb-0">
-              CubeSquare Real-World Asset Tokenization • Dubai & New York
+              CubeSquare Real-World Asset Tokenization &bull; Dubai &amp; New York
             </p>
           </div>
         </footer>
