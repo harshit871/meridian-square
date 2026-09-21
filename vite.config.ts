@@ -8,7 +8,8 @@ export default defineConfig({
     preprocessorOptions: {
       scss: {
         api: 'modern-compiler',
-        quietDeps: true
+        quietDeps: true,
+        silenceDeprecations: ['import']
       }
     }
   }
