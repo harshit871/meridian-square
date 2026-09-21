@@ -10,7 +10,6 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
-      staleTime: 1000 * 60 * 5,
     },
   },
 });
@@ -18,10 +17,10 @@ const queryClient = new QueryClient({
 export const App = () => {
   const [kycStatus, setKycStatus] = useState<KYCStatus>('pending');
   const [apiMode, setApiMode] = useState<ApiSimulationMode>('normal');
-  const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  const selectedProperty = selectedPropertyId
-    ? mockProperties.find((p) => p.id === selectedPropertyId)
+  const selectedProperty = selectedId
+    ? mockProperties.find((p) => p.id === selectedId) ?? null
     : null;
 
   return (
@@ -36,11 +35,7 @@ export const App = () => {
 
         <main className="container pb-5 flex-grow-1">
           <KYCStatusBanner status={kycStatus} />
-
-          <PropertyListingPage
-            apiMode={apiMode}
-            onViewProperty={(id) => setSelectedPropertyId(id)}
-          />
+          <PropertyListingPage apiMode={apiMode} onViewProperty={setSelectedId} />
         </main>
 
         {selectedProperty && (
@@ -50,43 +45,43 @@ export const App = () => {
             role="dialog"
             aria-modal="true"
             aria-labelledby="property-modal-title"
-            // --cs-modal-backdrop is defined in theme.scss so no hex leaks into components
             style={{ backgroundColor: 'var(--cs-modal-backdrop)' }}
           >
             <div className="modal-dialog modal-dialog-centered">
               <div className="modal-content shadow border-0">
-                <div className="modal-header border-bottom">
-                  <h5 className="modal-title fw-bold text-dark" id="property-modal-title">
+                <div className="modal-header">
+                  <h5 className="modal-title fw-bold" id="property-modal-title">
                     {selectedProperty.name}
                   </h5>
                   <button
                     type="button"
                     className="btn-close"
                     aria-label="Close"
-                    onClick={() => setSelectedPropertyId(null)}
-                  ></button>
+                    onClick={() => setSelectedId(null)}
+                  />
                 </div>
                 <div className="modal-body p-4">
                   <div className="mb-3 d-flex justify-content-between align-items-center">
                     <span className="text-muted">
-                      <i className="bi bi-geo-alt-fill text-primary me-1"></i>
+                      <i className="bi bi-geo-alt-fill text-primary me-1" aria-hidden="true" />
                       {selectedProperty.location}
                     </span>
                     <span className="badge text-bg-success">
-                      {selectedProperty.yieldPercent}% Projected APY
+                      {selectedProperty.yieldPercent}% APY
                     </span>
                   </div>
+
                   <ul className="list-group list-group-flush border-top border-bottom mb-3">
                     <li className="list-group-item d-flex justify-content-between px-0">
-                      <span className="text-muted">Price Per Token:</span>
+                      <span className="text-muted">Price per token</span>
                       <span className="fw-bold">${selectedProperty.pricePerToken}</span>
                     </li>
                     <li className="list-group-item d-flex justify-content-between px-0">
-                      <span className="text-muted">Total Token Supply:</span>
+                      <span className="text-muted">Total supply</span>
                       <span className="fw-bold">{selectedProperty.totalSupply.toLocaleString()}</span>
                     </li>
                     <li className="list-group-item d-flex justify-content-between px-0">
-                      <span className="text-muted">Available Tokens:</span>
+                      <span className="text-muted">Available tokens</span>
                       <span className="fw-bold text-primary">
                         {selectedProperty.availableTokens.toLocaleString()}
                       </span>
@@ -95,10 +90,8 @@ export const App = () => {
 
                   {kycStatus !== 'approved' ? (
                     <div className="alert alert-warning small mb-0 d-flex align-items-center gap-2">
-                      <i className="bi bi-shield-exclamation fs-5"></i>
-                      <div>
-                        Investment locked. Complete your KYC verification (currently {kycStatus}) to participate in token purchasing.
-                      </div>
+                      <i className="bi bi-shield-exclamation fs-5" aria-hidden="true" />
+                      Complete KYC verification to participate in token purchasing. Current status: {kycStatus}.
                     </div>
                   ) : (
                     <button type="button" className="btn btn-primary w-100 fw-semibold">
@@ -106,11 +99,11 @@ export const App = () => {
                     </button>
                   )}
                 </div>
-                <div className="modal-footer border-top bg-light">
+                <div className="modal-footer bg-light">
                   <button
                     type="button"
                     className="btn btn-secondary"
-                    onClick={() => setSelectedPropertyId(null)}
+                    onClick={() => setSelectedId(null)}
                   >
                     Close
                   </button>
@@ -120,11 +113,9 @@ export const App = () => {
           </div>
         )}
 
-        <footer className="bg-white border-top py-3 mt-auto text-center text-muted small">
+        <footer className="bg-white border-top py-3 text-center text-muted small">
           <div className="container">
-            <p className="mb-0">
-              CubeSquare Real-World Asset Tokenization &bull; Dubai &amp; New York
-            </p>
+            CubeSquare &bull; Real-World Asset Tokenization &bull; Dubai &amp; New York
           </div>
         </footer>
       </div>

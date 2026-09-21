@@ -1,115 +1,100 @@
 # CubeSquare — Property Listing Experience
-**Frontend Developer (React/TypeScript) — Stage 2 Practical Assessment**  
-**MeridianSquare.Global**
 
-A real-world asset (RWA) tokenization property marketplace built with **React**, **TypeScript** (strict mode), **Bootstrap 5 (Sass)**, and **TanStack Query**.
+**Frontend Developer (React/TypeScript) — Stage 2 Practical Assessment**  
+MeridianSquare.Global
+
+A real-world asset tokenization property marketplace built with React, TypeScript (strict), Bootstrap 5 (Sass), and TanStack Query.
 
 ---
 
 ## Quick Start
 
-Run with a single command:
-
 ```bash
-npm install && npm run dev
+npm install
+npm run dev
 ```
 
-The app will be available at `http://localhost:5173`.
+Open `http://localhost:5173`.
 
 ---
 
-## Tech Stack & Architecture
+## Scripts
 
-- **Framework:** React 18 / 19 with Vite
-- **Language:** TypeScript with strict mode enabled (`noImplicitAny`, `strictNullChecks`, typed props across all components, zero `any`)
-- **Theme & Styling:** Bootstrap 5 compiled via Sass (`src/styles/theme.scss`). No Tailwind, CSS Modules, or secondary styling frameworks.
-- **State & Data Fetching:** TanStack Query (`@tanstack/react-query`) with query key factories and derived filtering via `select`.
-- **Testing & Quality:** Vitest, React Testing Library, ESLint, and Stylelint (`stylelint-declaration-strict-value`).
-
----
-
-## Core Components
-
-### 1. `PropertyCard` (`src/components/PropertyCard.tsx`)
-Reusable card accepting strongly typed props:
-- Property name, location, price per token, total token supply, and projected yield.
-- **Data-driven availability indicator:** Dynamically calculates `(availableTokens / totalSupply) * 100`. When remaining tokens are below 20%, a high-urgency badge (`badge text-bg-danger`) is displayed with the exact percentage remaining.
-  - *Marina Tower Unit 4B:* 180 / 1,000 = 18.0% &rarr; **High Demand indicator active**
-  - *Downtown Loft 12A:* 498 / 500 = 99.6% &rarr; **Normal display**
-  - *JVC Studio Block C:* 12 / 2,000 = 0.6% &rarr; **High Demand indicator active**
-- **View Property CTA:** Opens an interactive investment summary modal.
-
-### 2. `PropertyListingPage` (`src/components/PropertyListingPage.tsx`)
-Page consuming `PropertyCard` and handling data fetching and layout:
-- **Responsive Bootstrap Grid:** 3 columns on desktop (`>=992px`), 2 columns on tablet (`768px–991px`), and 1 column on mobile (`<768px`) via `row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4`.
-- **Filter Panel (`src/components/FilterPanel.tsx`):** Location select dropdown + minimum yield numeric input + reset action.
-- **Explicit Lifecycle States:**
-  - *Loading:* Skeleton placeholder cards (`placeholder-glow`) matching the card dimensions to prevent layout shifts.
-  - *Error:* Danger alert card displaying error details with an active **Retry Fetch** button.
-  - *Empty:* Dedicated empty-state card when filter criteria return zero results, with a **Clear All Filters** shortcut.
-
-### 3. `KYCStatusBanner` (`src/components/KYCStatusBanner.tsx`)
-Mounted above the listing to display investor KYC status:
-- `pending`: Amber banner (`alert alert-warning`) with text:  
-  *"Your identity verification is in progress. You can browse but cannot invest yet."*
-- `rejected`: Red banner (`alert alert-danger`) with text:  
-  *"Your identity verification was unsuccessful. Please contact support."*
-- `approved`: Renders `null` (no DOM footprint).
-- Colors are inherited strictly from Bootstrap's contextual color palette (`warning`, `danger`) with no hardcoded hex overrides.
+```bash
+npm run dev        # Vite dev server with HMR
+npm run build      # TypeScript typecheck + production bundle
+npm run test       # Vitest component and integration tests
+npm run lint       # ESLint (TypeScript)
+npm run lint:style # Stylelint (CSS/Scss governance)
+```
 
 ---
 
-## Reviewer Controls (Demo Mode)
+## Architecture
 
-To make evaluating edge cases simple without editing code, a demo toolbar is embedded in the top navbar:
+```
+src/
+├── api/
+│   ├── mockData.ts         # Three fixed test properties from the spec
+│   └── propertiesApi.ts    # Async fetchProperties() with simulation modes
+├── hooks/
+│   └── useProperties.ts    # TanStack Query hook + client-side filter via select()
+├── components/
+│   ├── PropertyCard.tsx     # Reusable card — accepts property: Property
+│   ├── KYCStatusBanner.tsx  # Contextual alert banner driven by KYC status
+│   ├── FilterPanel.tsx      # Location + min yield filters
+│   ├── PropertyListingPage.tsx
+│   └── Header.tsx           # Demo controls for reviewers
+├── styles/
+│   └── theme.scss           # Bootstrap Sass variable overrides — single source of truth
+└── types/
+    ├── property.ts
+    └── kyc.ts
+```
 
-| Control | Options | What to Observe |
-|---|---|---|
-| **KYC** | `Pending`, `Rejected`, `Approved` | Toggles the contextual amber banner, red banner, or hides it completely. |
-| **API** | `Normal`, `Slow (2s)`, `Error (500)` | Simulates network latency to inspect skeleton loading states, or triggers a 500 failure to test the error card and retry flow. |
+---
+
+## State Management
+
+**Server state** lives in TanStack Query (`propertyKeys.all`). The query key does not include the reviewer API simulation mode — that is a testing concern, not a product cache dimension.
+
+**Filter state** is local `useState` in `PropertyListingPage`. Filtering is derived from the cached query result via `select()`. There is no duplicate state.
 
 ---
 
 ## Bootstrap Theme Governance
 
-The platform maintains a single source of truth for design tokens:
+All design tokens are defined in `src/styles/theme.scss` before the Bootstrap import:
 
-1. **Theme Entry Point (`src/styles/theme.scss`):**  
-   Bootstrap variables are overridden *before* importing Bootstrap:
-   - `$primary: #1A3A5C` (brand navy)
-   - `$border-radius: 0.5rem` (8px base radius)
-   - `$font-family-base: 'Inter', sans-serif`
-2. **Zero Component CSS Drift:**  
-   Components use compiled Bootstrap semantic classes and utility tokens. There are zero component-level CSS files with hardcoded hex codes or pixel radii.
-3. **Automated PR Enforcement:**  
-   `.stylelintrc.json` is configured with `stylelint-declaration-strict-value` and `color-no-hex: true`. Running `npm run lint:style` fails if any raw colors or non-tokenized dimension values are introduced.
+- `$primary: #1A3A5C`
+- `$border-radius: 0.5rem`
+- `$font-family-base: 'Inter', sans-serif`
+
+Components use Bootstrap semantic utilities (`btn-primary`, `alert-warning`, `badge text-bg-danger`). No component file contains hardcoded hex values or pixel radii. Stylelint enforces this automatically — see [`CSS_GOVERNANCE.md`](CSS_GOVERNANCE.md).
 
 ---
 
-## Deliverables
+## Reviewer Controls
 
-- **[CSS Governance Note (`CSS_GOVERNANCE.md`)](CSS_GOVERNANCE.md):** 234 words on theme structure, PR-level enforcement, and white-label multi-client operator strategy.
-- **[AI Usage Review (`AI_USAGE_REVIEW.md`)](AI_USAGE_REVIEW.md):** 420 words covering tools used, key prompts, accepted scaffolding, and critical engineering corrections.
+The header exposes two demo dropdowns, kept visually secondary:
+
+| Control | Options | What it demonstrates |
+|---|---|---|
+| **KYC** | Pending / Rejected / Approved | All three banner states |
+| **API** | Normal / Slow (2s) / Error (500) | Skeleton loading, error card, and retry flow |
 
 ---
 
-## Verification & Available Scripts
+## Testing
 
-```bash
-# Start local dev server with HMR
-npm run dev
+Three test files covering the highest-value business behaviours:
 
-# Run Vitest component & integration test suite
-npm run test
+- **`PropertyCard.test.tsx`** — field rendering, `< 20%` urgency badge toggling (all three spec properties), button click handler
+- **`KYCStatusBanner.test.tsx`** — correct copy and Bootstrap contextual classes for all three KYC states
+- **`PropertyListingPage.test.tsx`** — location filter, yield filter, empty state, error/retry flow
 
-# Run Stylelint to verify zero hardcoded theme values
-npm run lint:style
+---
 
-# Build production bundle and run TypeScript typecheck
-npm run build
-```
+## Timebox Note
 
-### Test Suite Overview (`src/test/`)
-- `PropertyCard.test.tsx`: Field rendering, dynamic `<20%` urgency badge toggling, and button click handlers.
-- `KYCStatusBanner.test.tsx`: Correct copy and Bootstrap contextual classes for `pending`, `rejected`, and `approved`.
-- `PropertyListingPage.test.tsx`: Location filtering, yield numeric filtering, skeleton loading, empty state, and error/retry lifecycle.
+Implemented within the 3–4 hour assessment window. Architecture deliberately favors explainability over abstraction — the code path from data to render is short and linear.

@@ -4,28 +4,26 @@ import { Property, PropertyFilters } from '../types/property';
 
 export const propertyKeys = {
   all: ['properties'] as const,
-  lists: () => [...propertyKeys.all, 'list'] as const,
-  list: (mode: ApiSimulationMode) => [...propertyKeys.lists(), mode] as const,
 };
 
 export function useProperties(filters?: PropertyFilters, apiMode: ApiSimulationMode = 'normal') {
   return useQuery<Property[], Error>({
-    queryKey: propertyKeys.list(apiMode),
+    queryKey: propertyKeys.all,
     queryFn: () => fetchProperties(apiMode),
-    staleTime: apiMode === 'normal' ? 1000 * 60 * 5 : 0,
+    staleTime: 1000 * 60 * 5,
     retry: 0,
     select: (data) => {
       if (!filters) return data;
-      return data.filter((property) => {
+
+      return data.filter((p) => {
         const matchesLocation =
           !filters.location ||
           filters.location === 'ALL' ||
-          property.location.toLowerCase() === filters.location.toLowerCase();
+          p.location.toLowerCase() === filters.location.toLowerCase();
 
         const matchesYield =
-          filters.minYield === undefined ||
           filters.minYield === null ||
-          property.yieldPercent >= filters.minYield;
+          p.yieldPercent >= filters.minYield;
 
         return matchesLocation && matchesYield;
       });

@@ -9,6 +9,6 @@ export interface Property {
 }
 
 export interface PropertyFilters {
-  minYield: number;
+  minYield: number | null;
   location: string;
 }
