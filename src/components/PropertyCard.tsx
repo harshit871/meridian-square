@@ -1,5 +1,3 @@
-import React from 'react';
-
 export interface PropertyCardProps {
   id: string;
   name: string;
@@ -11,7 +9,7 @@ export interface PropertyCardProps {
   onViewProperty?: (id: string) => void;
 }
 
-export const PropertyCard: React.FC<PropertyCardProps> = ({
+export const PropertyCard = ({
   id,
   name,
   location,
@@ -20,7 +18,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
   availableTokens,
   yieldPercent,
   onViewProperty
-}) => {
+}: PropertyCardProps) => {
   const remainingPercentage = totalSupply > 0 ? (availableTokens / totalSupply) * 100 : 0;
   const isLowAvailability = remainingPercentage < 20;
 

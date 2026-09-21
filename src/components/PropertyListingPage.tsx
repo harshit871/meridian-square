@@ -1,19 +1,23 @@
-import React, { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { useProperties } from '../hooks/useProperties';
 import { PropertyCard } from './PropertyCard';
 import { FilterPanel } from './FilterPanel';
 import { PropertyFilters } from '../types/property';
 import { ApiSimulationMode } from '../api/propertiesApi';
 
+// Static reference data — hoisted to module scope so it doesn't trigger a
+// new array identity on every render (avoids a useMemo with empty deps).
+const LOCATIONS = ['Dubai Marina', 'Downtown Dubai', 'Jumeirah Village Circle'];
+
 export interface PropertyListingPageProps {
   apiMode?: ApiSimulationMode;
   onViewProperty?: (id: string) => void;
 }
 
-export const PropertyListingPage: React.FC<PropertyListingPageProps> = ({
+export const PropertyListingPage = ({
   apiMode = 'normal',
   onViewProperty
-}) => {
+}: PropertyListingPageProps) => {
   const [filters, setFilters] = useState<PropertyFilters>({
     minYield: 0,
     location: 'ALL'
@@ -23,10 +27,6 @@ export const PropertyListingPage: React.FC<PropertyListingPageProps> = ({
     filters,
     apiMode
   );
-
-  const locations = useMemo(() => {
-    return ['Dubai Marina', 'Downtown Dubai', 'Jumeirah Village Circle'];
-  }, []);
 
   const handleResetFilters = () => {
     setFilters({ minYield: 0, location: 'ALL' });
@@ -51,7 +51,7 @@ export const PropertyListingPage: React.FC<PropertyListingPageProps> = ({
 
       <FilterPanel
         filters={filters}
-        locations={locations}
+        locations={LOCATIONS}
         onFilterChange={setFilters}
         onReset={handleResetFilters}
         resultCount={properties?.length ?? 0}
@@ -82,7 +82,8 @@ export const PropertyListingPage: React.FC<PropertyListingPageProps> = ({
                       </div>
                     </div>
                   </div>
-                  <div className="placeholder col-12 mb-3" style={{ height: '8px' }}></div>
+                  {/* Progress bar height in skeleton matches PropertyCard — 6px fixed */}
+                  <div className="placeholder col-12 mb-3" style={{ height: '6px' }}></div>
                   <span className="btn btn-primary disabled placeholder col-12 py-2"></span>
                 </div>
               </div>
@@ -129,6 +130,7 @@ export const PropertyListingPage: React.FC<PropertyListingPageProps> = ({
               type="button"
               className="btn btn-outline-primary px-4"
               onClick={handleResetFilters}
+              aria-label="Clear all filters"
             >
               <i className="bi bi-filter-circle me-2" aria-hidden="true"></i>
               Clear All Filters
